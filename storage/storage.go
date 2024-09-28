@@ -14,11 +14,11 @@ $1, $2, $3, $4, $5, $6, $7, $8, $9)`
 func New() (*pgxpool.Pool, error) {
 	c, err := pgxpool.ParseConfig(cfg.DNS())
 	if err != nil {
-		return nil, fmt.Errorf("ошибка при разборе db uri: %w", err)
+		return nil, fmt.Errorf("error while parse db uri: %w", err)
 	}
 	pool, err := pgxpool.NewWithConfig(context.Background(), c)
 	if err != nil {
-		return nil, fmt.Errorf("ошибка при создании пула базы данных: %w", err)
+		return nil, fmt.Errorf("error while add db: %w", err)
 	}
 	return pool, nil
 }
@@ -26,7 +26,7 @@ func New() (*pgxpool.Pool, error) {
 func Add(df *DTO, pool *pgxpool.Pool, ctx context.Context) error {
 	_, err := pool.Exec(ctx, queryAddFilm, df.ItemID, df.Title, df.ReleaseYear, df.Genres, df.Countries, df.AgeRating, df.Directors, df.Actors, df.Description)
 	if err != nil {
-		return fmt.Errorf("ошибка при добавлении фильма: %w", err)
+		return fmt.Errorf("error while add film: %w", err)
 	}
 	return nil
 }
