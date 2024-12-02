@@ -1,13 +1,18 @@
 package storage
 
 type DTO struct {
-	ItemID      int
-	Title       string
-	ReleaseYear int
-	Genres      string
-	Countries   string
-	AgeRating   int
-	Directors   string
-	Actors      string
-	Description string
+	Id                  int
+	Title               string
+	Genres              []string
+	Overview            string
+	ProductionCompanies []string
+	ProductionCountries []string
+	ReleaseDate         string
+	RunTime             int
+	VoteAverage         float64
+	VoteCount           int
+	Actor               []string
+	KeyWords            []string
+	Director            string
+	WeightRating        float64
 }

@@ -8,7 +8,7 @@ import (
 )
 
 func LoadData() dataframe.DataFrame {
-	file, err := os.Open("dataset_1.3.csv")
+	file, err := os.Open("dataset_23k_v2.csv")
 	defer file.Close()
 	if err != nil {
 		log.Fatal(err)

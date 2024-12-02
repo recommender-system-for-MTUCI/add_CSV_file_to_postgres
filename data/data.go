@@ -2,56 +2,86 @@ package data
 
 import (
 	"context"
-	"log"
-	"log/slog"
-
+	"fmt"
 	"github.com/recommender-system-for-MTUCI/add_CSV_file_to_postgres/csv"
 	"github.com/recommender-system-for-MTUCI/add_CSV_file_to_postgres/storage"
+	"log"
+	"strings"
 )
 
 func Data() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-
 	pgx, err := storage.New()
 	if err != nil {
 		log.Fatalf("Failed to connect with db: %v", err)
 	}
 	dataFrame := csv.LoadData()
 	lenDataFrame, _ := dataFrame.Dims()
-	for i := 0; i < lenDataFrame; i++ {
-		id, err := dataFrame.Elem(i, 0).Int()
+
+	for j := 0; j < lenDataFrame; j++ {
+		id, err := dataFrame.Elem(j, 0).Int()
 		if err != nil {
-			log.Fatal("failed to convert id", err)
+			fmt.Println(err)
+			panic(err)
 		}
-		title := dataFrame.Elem(i, 1).String()
-		releaseYear, err := dataFrame.Elem(i, 2).Int()
+		title := dataFrame.Elem(j, 1).String()
+		genres := dataFrame.Elem(j, 2).String()
+		cleanedGenres := strings.Trim(genres, "[]")
+		cleanedGenres = strings.ReplaceAll(cleanedGenres, "\"", "")
+		readyGenres := strings.Split(cleanedGenres, ", ")
+		overview := dataFrame.Elem(j, 3).String()
+		productionCompanies := dataFrame.Elem(j, 4).String()
+		cleanedProductionCompanies := strings.Trim(productionCompanies, "[]")
+		cleanedProductionCompanies = strings.ReplaceAll(cleanedProductionCompanies, "\"", "")
+		readyProductionCompanies := strings.Split(cleanedProductionCompanies, ", ")
+		productionContries := dataFrame.Elem(j, 5).String()
+		cleanedProductionContries := strings.Trim(productionContries, "[]")
+		cleanedProductionContries = strings.ReplaceAll(cleanedProductionContries, "\"", "")
+		readyProductionContries := strings.Split(cleanedProductionContries, ", ")
+		releaseDate := dataFrame.Elem(j, 6).String()
+		runTime, err := dataFrame.Elem(j, 7).Int()
 		if err != nil {
-			log.Fatal("failed to convert release year", err)
+			fmt.Println(err)
+			panic(err)
 		}
-		genres := dataFrame.Elem(i, 3).String()
-		countries := dataFrame.Elem(i, 4).String()
-		ageRaiting, err := dataFrame.Elem(i, 5).Int()
+		voteAverage := dataFrame.Elem(j, 8).Float()
+		voteCount, err := dataFrame.Elem(j, 9).Int()
 		if err != nil {
-			log.Fatal("failed to convert age raiting", err)
+			fmt.Println(err)
+			panic(err)
 		}
-		directors := dataFrame.Elem(i, 6).String()
-		actors := dataFrame.Elem(i, 7).String()
-		description := dataFrame.Elem(i, 8).String()
-		err = storage.Add(&storage.DTO{
-			ItemID:      id,
-			Title:       title,
-			ReleaseYear: releaseYear,
-			Genres:      genres,
-			Countries:   countries,
-			AgeRating:   ageRaiting,
-			Directors:   directors,
-			Actors:      actors,
-			Description: description,
-		}, pgx, ctx)
+		actor := dataFrame.Elem(j, 10).String()
+		cleanedActor := strings.Trim(actor, "[]")
+		cleanedActor = strings.ReplaceAll(cleanedActor, "\"", "")
+		readyActor := strings.Split(cleanedActor, ", ")
+		keyWords := dataFrame.Elem(j, 11).String()
+		cleanedKeyWords := strings.Trim(keyWords, "[]")
+		cleanedKeyWords = strings.ReplaceAll(cleanedKeyWords, "\"", "")
+		readyKeyWords := strings.Split(cleanedKeyWords, ", ")
+		director := dataFrame.Elem(j, 12).String()
+		weightRating := dataFrame.Elem(j, 13).Float()
+		data := &storage.DTO{
+			Id:                  id,
+			Title:               title,
+			Genres:              readyGenres,
+			Overview:            overview,
+			ProductionCompanies: readyProductionCompanies,
+			ProductionCountries: readyProductionContries,
+			ReleaseDate:         releaseDate,
+			RunTime:             runTime,
+			VoteAverage:         voteAverage,
+			VoteCount:           voteCount,
+			Actor:               readyActor,
+			KeyWords:            readyKeyWords,
+			Director:            director,
+			WeightRating:        weightRating,
+		}
+		err = storage.Add(data, pgx, ctx)
 		if err != nil {
-			log.Fatal("failed to add film in db", err)
+			fmt.Println(err)
 		}
 	}
-	slog.Info("all films added")
+	fmt.Println("all data in db")
+
 }
